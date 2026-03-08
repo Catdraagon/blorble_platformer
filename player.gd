@@ -1,21 +1,35 @@
 extends CharacterBody2D
 
-var speed = 400
+var accl = 8000
+var sprint_accl = 50000
 var fall_gravity = 2000
 var jump_gravity = 900
-var jump_force = -500
-var jump_boost_max = 0.5
-var jump_boost = -25
-var jump_time = 0.0
-var is_jumping = false
+var jump_force = -950
+var jump_slowdown = 0.5
+var friction = 4000
+var max_speed = 400
+var max_sprint_speed = 1000
 
 func _physics_process(delta):
-	var direction = 0	
-	if Input.is_action_pressed("ui_right"):
-		direction += 1
-	if Input.is_action_pressed("ui_left"):
-		direction -= 1
-	velocity.x = direction * speed
+	var current_accl = accl
+	var current_max_speed = max_speed
+	if Input.is_action_pressed("ui_shift"):
+		current_accl = sprint_accl
+		current_max_speed = max_sprint_speed
+		# TODO player not turning or stopping when you sprint and then try to turn without stopping first
+	if abs(velocity.x) != max_sprint_speed or not Input.is_action_pressed("ui_shift") or not (Input.is_action_pressed("ui_right") or Input.is_action_pressed("ui_left")):
+		if velocity.x > 0:
+			velocity.x -= friction * delta
+		elif velocity.x < 0:
+			velocity.x += friction * delta
+	if not abs(velocity.x) >= max_speed and Input.is_action_pressed("ui_right"):
+		velocity.x += current_accl * delta
+	if not abs(velocity.x) >= max_speed and Input.is_action_pressed("ui_left"):
+		velocity.x -= current_accl * delta
+	if velocity.x > current_max_speed:
+		velocity.x = current_max_speed
+	elif velocity.x < -current_max_speed:
+		velocity.x = -current_max_speed
 	
 	var gravity = 0
 	if velocity.y <= 0:
@@ -23,20 +37,12 @@ func _physics_process(delta):
 	else:
 		gravity = fall_gravity
 		
-	if not is_on_floor():
-		velocity.y += gravity * delta
-	else:
-		jump_time = 0.0
-		is_jumping = false
+	velocity.y += gravity * delta
 	
 	if Input.is_action_just_pressed("ui_up") and is_on_floor():
 		velocity.y = jump_force
-		is_jumping = true
-		jump_time = 0.0
 		
-	if is_jumping and Input.is_action_pressed("ui_up"):
-		jump_time += delta
-		if jump_time < jump_boost_max:
-			velocity.y += jump_boost
+	if Input.is_action_just_released("ui_up") and not is_on_floor() and velocity.y < 0:
+		velocity.y *= jump_slowdown
 	
 	move_and_slide()
