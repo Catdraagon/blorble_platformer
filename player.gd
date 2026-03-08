@@ -1,8 +1,8 @@
 extends CharacterBody2D
 
 var accl = 8000
-var sprint_accl = 50000
-var fall_gravity = 2000
+var sprint_accl = 40000
+var fall_gravity = 3000
 var jump_gravity = 900
 var jump_force = -950
 var jump_slowdown = 0.5
@@ -16,8 +16,8 @@ func _physics_process(delta):
 	if Input.is_action_pressed("ui_shift"):
 		current_accl = sprint_accl
 		current_max_speed = max_sprint_speed
-		# TODO player not turning or stopping when you sprint and then try to turn without stopping first
-	if abs(velocity.x) != max_sprint_speed or not Input.is_action_pressed("ui_shift") or not (Input.is_action_pressed("ui_right") or Input.is_action_pressed("ui_left")):
+		# TODO make braking more smooth
+	if abs(velocity.x) != max_sprint_speed or not Input.is_action_pressed("ui_shift") or not (Input.is_action_pressed("ui_right") or Input.is_action_pressed("ui_left")) or Input.is_action_just_released("ui_right") or Input.is_action_just_released("ui_left"):
 		if velocity.x > 0:
 			velocity.x -= friction * delta
 		elif velocity.x < 0:
