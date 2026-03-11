@@ -4,6 +4,8 @@
 [ext_resource type="Texture2D" uid="uid://djp0fr7yh6s6c" path="res://pixil-frame-0 (5).png" id="2_hqtel"]
 [ext_resource type="Texture2D" uid="uid://bjnun3bvbhnll" path="res://descentCrownNorm.png" id="3_i3pqv"]
 [ext_resource type="Texture2D" uid="uid://dyqwsa8nghx62" path="res://pixil-frame-1.png" id="3_sweqy"]
+[ext_resource type="Texture2D" uid="uid://do623knjnus0e" path="res://hamster.png" id="5_2hs0m"]
+[ext_resource type="Texture2D" uid="uid://fkcjvc33d1bx" path="res://chub_hamster.png" id="6_1jxqw"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hqtel"]
 size = Vector2(128, 65)
@@ -24,6 +26,12 @@ animations = [{
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_i3pqv"]
 size = Vector2(1679, 575.5)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2hs0m"]
+size = Vector2(84.75, 50)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1jxqw"]
+size = Vector2(21.70136, 40.790375)
 
 [node name="Node2D" type="Node2D" unique_id=290388438]
 
@@ -52,3 +60,26 @@ shape = SubResource("RectangleShape2D_i3pqv")
 position = Vector2(758, 1006)
 scale = Vector2(10.50625, 3.6375)
 texture = ExtResource("3_i3pqv")
+
+[node name="StaticBody2D2" type="StaticBody2D" parent="." unique_id=723735934]
+
+[node name="Sprite2D" type="Sprite2D" parent="StaticBody2D2" unique_id=763822073]
+position = Vector2(812, 689)
+scale = Vector2(0.465625, 0.465625)
+texture = ExtResource("5_2hs0m")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2" unique_id=445419238]
+position = Vector2(815.625, 691)
+shape = SubResource("RectangleShape2D_2hs0m")
+
+[node name="StaticBody2D3" type="StaticBody2D" parent="." unique_id=2055911033]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D3" unique_id=550261775]
+position = Vector2(1031, 637.8125)
+scale = Vector2(10.50625, 3.6375)
+shape = SubResource("RectangleShape2D_1jxqw")
+
+[node name="Sprite2D2" type="Sprite2D" parent="StaticBody2D3" unique_id=861858439]
+position = Vector2(1040, 659)
+scale = Vector2(1.1296873, 1.1296873)
+texture = ExtResource("6_1jxqw")

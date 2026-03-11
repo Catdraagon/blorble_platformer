@@ -3,8 +3,8 @@ extends CharacterBody2D
 var accl = 8000
 var sprint_accl = 40000
 var fall_gravity = 3000
-var jump_gravity = 900
-var jump_force = -950
+var jump_gravity = 500
+var jump_force = -700
 var jump_slowdown = 0.5
 var friction = 4000
 var max_speed = 400
