@@ -62,6 +62,7 @@ scale = Vector2(10.50625, 3.6375)
 texture = ExtResource("3_i3pqv")
 
 [node name="StaticBody2D2" type="StaticBody2D" parent="." unique_id=723735934]
+position = Vector2(352, -139)
 
 [node name="Sprite2D" type="Sprite2D" parent="StaticBody2D2" unique_id=763822073]
 position = Vector2(812, 689)
@@ -73,6 +74,7 @@ position = Vector2(815.625, 691)
 shape = SubResource("RectangleShape2D_2hs0m")
 
 [node name="StaticBody2D3" type="StaticBody2D" parent="." unique_id=2055911033]
+position = Vector2(231, 0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D3" unique_id=550261775]
 position = Vector2(1031, 637.8125)

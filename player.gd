@@ -1,35 +1,88 @@
 extends CharacterBody2D
 
-var accl = 8000
-var sprint_accl = 40000
 var fall_gravity = 3000
 var jump_gravity = 500
 var jump_force = -700
 var jump_slowdown = 0.5
+
+var accl = 8000
+var sprint_accl = 40000
 var friction = 4000
-var max_speed = 400
-var max_sprint_speed = 1000
+var max_speed = 600
+var sprint_max_speed = 1000
+var brake = 70000
+var sprint_brake = 20000
 
 func _physics_process(delta):
-	var current_accl = accl
-	var current_max_speed = max_speed
-	if Input.is_action_pressed("ui_shift"):
-		current_accl = sprint_accl
-		current_max_speed = max_sprint_speed
-		# TODO make braking more smooth
-	if abs(velocity.x) != max_sprint_speed or not Input.is_action_pressed("ui_shift") or not (Input.is_action_pressed("ui_right") or Input.is_action_pressed("ui_left")) or Input.is_action_just_released("ui_right") or Input.is_action_just_released("ui_left"):
-		if velocity.x > 0:
-			velocity.x -= friction * delta
-		elif velocity.x < 0:
-			velocity.x += friction * delta
-	if not abs(velocity.x) >= max_speed and Input.is_action_pressed("ui_right"):
+	var is_stop = false
+	var current_accl = 0
+	var direction = 0
+	if velocity.x == 0:
+		if Input.is_action_pressed("ui_right"):
+			current_accl = accl
+		elif Input.is_action_pressed("ui_left"):
+			current_accl = -accl
+		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
+			current_accl = sprint_accl
+		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_left"):
+			current_accl = -sprint_accl
+	if velocity.x > 0:
+		if Input.is_action_pressed("ui_right"):
+			current_accl = accl
+		elif Input.is_action_pressed("ui_left"):
+			#current_accl = -brake
+			is_stop = true
+			direction = -1
+		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
+			current_accl = sprint_accl
+		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_left"):
+			current_accl = -sprint_brake
+		else:
+			current_accl = -friction
+	if velocity.x < 0:
+		if Input.is_action_pressed("ui_right"):
+			#current_accl = brake
+			is_stop = true
+			direction = 1
+		elif Input.is_action_pressed("ui_left"):
+			current_accl = -accl
+		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
+			current_accl = sprint_brake
+		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_left"):
+			current_accl = -sprint_accl
+		else:
+			current_accl = friction
+	if velocity.x >= max_speed:
+		if Input.is_action_pressed("ui_right"):
+			current_accl = 0
+		elif Input.is_action_pressed("ui_left"):
+			#current_accl = -brake
+			is_stop = true
+			direction = -1
+		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
+			current_accl = sprint_accl
+		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_left"):
+			current_accl = -sprint_brake
+		else:
+			current_accl = -friction
+	if velocity.x <= -max_speed:
+		if Input.is_action_pressed("ui_right"):
+			#current_accl = brake
+			is_stop = true
+			direction = 1
+		elif Input.is_action_pressed("ui_left"):
+			current_accl = 0
+		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
+			current_accl = sprint_brake
+		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_left"):
+			current_accl = -sprint_accl
+		else:
+			current_accl = friction
+
+	if is_stop:
+		velocity.x = direction * accl * delta
+	else:
 		velocity.x += current_accl * delta
-	if not abs(velocity.x) >= max_speed and Input.is_action_pressed("ui_left"):
-		velocity.x -= current_accl * delta
-	if velocity.x > current_max_speed:
-		velocity.x = current_max_speed
-	elif velocity.x < -current_max_speed:
-		velocity.x = -current_max_speed
 	
 	var gravity = 0
 	if velocity.y <= 0:
