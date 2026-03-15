@@ -6,76 +6,94 @@ var jump_force = -700
 var jump_slowdown = 0.5
 
 var accl = 8000
-var sprint_accl = 40000
+var sprint_accl = 10000
 var friction = 4000
 var max_speed = 600
-var sprint_max_speed = 1000
+var sprint_max_speed = 1500
 var brake = 70000
-var sprint_brake = 20000
+var sprint_brake = 10000
 
 func _physics_process(delta):
 	var is_stop = false
 	var current_accl = 0
 	var direction = 0
 	if velocity.x == 0:
-		if Input.is_action_pressed("ui_right"):
-			current_accl = accl
-		elif Input.is_action_pressed("ui_left"):
-			current_accl = -accl
-		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
+		if Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
 			current_accl = sprint_accl
 		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_left"):
 			current_accl = -sprint_accl
-	if velocity.x > 0:
-		if Input.is_action_pressed("ui_right"):
+		elif Input.is_action_pressed("ui_right"):
 			current_accl = accl
 		elif Input.is_action_pressed("ui_left"):
-			#current_accl = -brake
-			is_stop = true
-			direction = -1
-		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
+			current_accl = -accl
+	if velocity.x > 0:
+		if Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
 			current_accl = sprint_accl
 		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_left"):
 			current_accl = -sprint_brake
+		elif Input.is_action_pressed("ui_right"):
+			current_accl = accl
+		elif Input.is_action_pressed("ui_left"):
+			is_stop = true
+			direction = -1
 		else:
 			current_accl = -friction
 	if velocity.x < 0:
-		if Input.is_action_pressed("ui_right"):
-			#current_accl = brake
+		if Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
+			current_accl = sprint_brake
+		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_left"):
+			current_accl = -sprint_accl
+		elif Input.is_action_pressed("ui_right"):
 			is_stop = true
 			direction = 1
 		elif Input.is_action_pressed("ui_left"):
 			current_accl = -accl
-		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
-			current_accl = sprint_brake
-		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_left"):
-			current_accl = -sprint_accl
 		else:
 			current_accl = friction
 	if velocity.x >= max_speed:
-		if Input.is_action_pressed("ui_right"):
-			current_accl = 0
-		elif Input.is_action_pressed("ui_left"):
-			#current_accl = -brake
-			is_stop = true
-			direction = -1
-		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
+		if Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
 			current_accl = sprint_accl
 		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_left"):
 			current_accl = -sprint_brake
+		elif Input.is_action_pressed("ui_right"):
+			current_accl = 0
+		elif Input.is_action_pressed("ui_left"):
+			is_stop = true
+			direction = -1
 		else:
 			current_accl = -friction
 	if velocity.x <= -max_speed:
-		if Input.is_action_pressed("ui_right"):
-			#current_accl = brake
+		if Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
+			current_accl = sprint_brake
+		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_left"):
+			current_accl = -sprint_accl
+		elif Input.is_action_pressed("ui_right"):
 			is_stop = true
 			direction = 1
 		elif Input.is_action_pressed("ui_left"):
 			current_accl = 0
-		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
+		else:
+			current_accl = friction
+	if velocity.x >= sprint_max_speed:
+		if Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
+			current_accl = 0
+		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_left"):
+			current_accl = -sprint_brake
+		elif Input.is_action_pressed("ui_right"):
+			current_accl = -friction
+		elif Input.is_action_pressed("ui_left"):
+			current_accl = -brake
+		else:
+			current_accl = -friction
+	if velocity.x <= -sprint_max_speed:
+		if Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
 			current_accl = sprint_brake
 		elif Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_left"):
-			current_accl = -sprint_accl
+			current_accl = 0
+		elif Input.is_action_pressed("ui_right"):
+			current_accl = brake
+		elif Input.is_action_pressed("ui_left"):
+			current_accl = friction
 		else:
 			current_accl = friction
 
@@ -83,6 +101,11 @@ func _physics_process(delta):
 		velocity.x = direction * accl * delta
 	else:
 		velocity.x += current_accl * delta
+
+	if Input.is_action_pressed("ui_shift"):
+		velocity.x = clamp(velocity.x, -sprint_max_speed, sprint_max_speed)
+	else:
+		velocity.x = clamp(velocity.x, -max_speed, max_speed)
 	
 	var gravity = 0
 	if velocity.y <= 0:
