@@ -1,17 +1,25 @@
 extends CharacterBody2D
 
-var fall_gravity = 3000
-var jump_gravity = 500
-var jump_force = -700
-var jump_slowdown = 0.5
-
 var accl = 8000
 var sprint_accl = 10000
 var friction = 4000
 var max_speed = 600
-var sprint_max_speed = 1500
+var sprint_max_speed = 1300
 var brake = 70000
 var sprint_brake = 10000
+var jump_height = 400
+var jump_time = 0.65
+var fall_time = 0.55
+var jump_stop_multiplier = 0.5
+
+var jump_velocity = 2 * jump_height / jump_time
+var jump_accl = 2 * jump_height / (jump_time ** 2)
+var fall_accl = 2 * jump_height / (fall_time ** 2)
+
+func get_jump_accl() -> float:
+	if velocity.y < 0:
+		return jump_accl
+	return fall_accl
 
 func get_acceleration(none, right, left, shift_right, shift_left) -> float:
 	if Input.is_action_pressed("ui_shift") and Input.is_action_pressed("ui_right"):
@@ -25,6 +33,7 @@ func get_acceleration(none, right, left, shift_right, shift_left) -> float:
 	return none
 
 func _physics_process(delta):
+	var old_v_x = velocity.x
 	var current_accl = 0
 	if velocity.x == 0:
 		current_accl = get_acceleration(0, accl, -brake, sprint_accl, -sprint_brake)
@@ -41,25 +50,26 @@ func _physics_process(delta):
 	if velocity.x <= -sprint_max_speed:
 		current_accl = get_acceleration(friction, brake, friction, sprint_brake, 0)
 
+	#print(current_accl)
 	velocity.x += current_accl * delta
 
 	if Input.is_action_pressed("ui_shift"):
 		velocity.x = clamp(velocity.x, -sprint_max_speed, sprint_max_speed)
-	else:
+	elif Input.is_action_pressed("ui_right") or Input.is_action_pressed("ui_left"):
 		velocity.x = clamp(velocity.x, -max_speed, max_speed)
-	
-	var gravity = 0
-	if velocity.y <= 0:
-		gravity = jump_gravity
 	else:
-		gravity = fall_gravity
+		if old_v_x > 0:
+			velocity.x = max(velocity.x, 0)
+		elif old_v_x < 0:
+			velocity.x = min(0, velocity.x)
 
-	velocity.y += gravity * delta
+	velocity.y += get_jump_accl() * delta
 	
 	if Input.is_action_just_pressed("ui_up") and is_on_floor():
-		velocity.y = jump_force
+		print(jump_velocity)
+		velocity.y = -jump_velocity
+
+	if Input.is_action_just_released("ui_up") and velocity.y < 0:
+		velocity.y *= jump_stop_multiplier
 		
-	if Input.is_action_just_released("ui_up") and not is_on_floor() and velocity.y < 0:
-		velocity.y *= jump_slowdown
-	
 	move_and_slide()
